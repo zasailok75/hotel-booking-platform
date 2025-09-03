@@ -76,7 +76,7 @@ class HotelSearch:
 
 # Optimized search function for large datasets
 @cache_search_results
-def search_hotels_optimized(city=None, name=None, limit=100, offset=0):
+def search_hotels_optimized(city=None, name=None, unfilled_only=False, check_in_date=None, check_out_date=None, limit=100, offset=0):
     """
     Optimized search function for large datasets.
     Uses indexed fields and query optimization.
@@ -85,6 +85,9 @@ def search_hotels_optimized(city=None, name=None, limit=100, offset=0):
     Args:
         city (str): City name to filter by
         name (str): Hotel name to filter by
+        unfilled_only (bool): If True, only return hotels with available rooms
+        check_in_date (date): Check-in date for availability check
+        check_out_date (date): Check-out date for availability check
         limit (int): Maximum number of results
         offset (int): Offset for pagination
         
@@ -105,6 +108,29 @@ def search_hotels_optimized(city=None, name=None, limit=100, offset=0):
     # Apply filters if any exist
     if filters:
         query = query.filter(filters)
+    
+    # Filter for hotels with unfilled (available) rooms if requested
+    if unfilled_only and check_in_date and check_out_date:
+        # Get hotels that have at least one available room
+        hotels_with_available_rooms = []
+        
+        for hotel in query:
+            # Check if hotel has any available rooms for the specified dates
+            available_rooms = Room.objects.filter(hotel=hotel).exclude(
+                bookings__is_cancelled=False,
+                bookings__check_in_date__lt=check_out_date,
+                bookings__check_out_date__gt=check_in_date
+            )
+            
+            if available_rooms.exists():
+                hotels_with_available_rooms.append(hotel.id)
+        
+        # Filter the query to only include hotels with available rooms
+        if hotels_with_available_rooms:
+            query = query.filter(id__in=hotels_with_available_rooms)
+        else:
+            # No hotels with available rooms found
+            return Hotel.objects.none()
     
     # Use only() to select specific fields for better performance
     query = query.only('id', 'name', 'city')

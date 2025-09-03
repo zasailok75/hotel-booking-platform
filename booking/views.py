@@ -25,6 +25,36 @@ class HotelViewSet(viewsets.ModelViewSet):
     search_fields = ['name', 'city']
     throttle_classes = [SearchUserRateThrottle, SearchAnonRateThrottle]
     
+    def get_queryset(self):
+        from .search import search_hotels_optimized
+        
+        # Get query parameters
+        city = self.request.query_params.get('city', None)
+        name = self.request.query_params.get('name', None)
+        unfilled_only = self.request.query_params.get('unfilled_only', 'false').lower() == 'true'
+        check_in_date = self.request.query_params.get('check_in_date', None)
+        check_out_date = self.request.query_params.get('check_out_date', None)
+        
+        # If unfilled_only is requested, use the optimized search function
+        if unfilled_only and check_in_date and check_out_date:
+            return search_hotels_optimized(
+                city=city,
+                name=name,
+                unfilled_only=True,
+                check_in_date=check_in_date,
+                check_out_date=check_out_date
+            )
+        
+        # Otherwise, use the default queryset
+        queryset = Hotel.objects.all()
+        
+        if city:
+            queryset = queryset.filter(city__icontains=city)
+        if name:
+            queryset = queryset.filter(name__icontains=name)
+            
+        return queryset
+    
     @action(detail=True, methods=['get'])
     def rooms(self, request, pk=None):
         hotel = self.get_object()
@@ -58,6 +88,15 @@ class BookingViewSet(viewsets.ModelViewSet):
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer
     throttle_classes = [BookingUserRateThrottle, BookingAnonRateThrottle]
+    
+    def get_queryset(self):
+        queryset = Booking.objects.all()
+        room_id = self.request.query_params.get('room', None)
+        
+        if room_id:
+            queryset = queryset.filter(room_id=room_id)
+            
+        return queryset
     
     @transaction.atomic
     def create(self, request, *args, **kwargs):

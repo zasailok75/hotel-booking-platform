@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .room-card {
+            transition: transform 0.3s;
+            margin-bottom: 20px;
+        }
+        .room-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .banner {
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 50px 0;
+            margin-bottom: 30px;
+        }
+        .booking-status {
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        .status-available {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status-booked {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .booking-dates {
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">Hotel Booking</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Hotels</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">My Bookings</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Login</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="banner text-center">
+        <div class="container">
+            <h1 class="display-5" id="hotel-name">Hotel Rooms</h1>
+            <p class="lead" id="hotel-location">Available Rooms and Booking Status</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12">
+                <a href="/" class="btn btn-outline-secondary">← Back to Hotels</a>
+            </div>
+        </div>
+        
+        <div class="row" id="rooms-container">
+            <!-- Room cards will be loaded here -->
+            <div class="col-12 text-center">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p>Loading rooms...</p>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-dark text-white mt-5 py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Hotel Booking Platform</h5>
+                    <p>Find the perfect hotel for your next trip.</p>
+                </div>
+                <div class="col-md-3">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="/" class="text-white">Home</a></li>
+                        <li><a href="#" class="text-white">Hotels</a></li>
+                        <li><a href="#" class="text-white">My Bookings</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Contact</h5>
+                    <ul class="list-unstyled">
+                        <li>Email: info@hotelbooking.com</li>
+                        <li>Phone: +1 (123) 456-7890</li>
+                    </ul>
+                </div>
+            </div>
+            <hr>
+            <div class="text-center">
+                <p class="mb-0">© 2023 Hotel Booking Platform. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get hotel ID from URL
+            const urlParts = window.location.pathname.split('/');
+            const hotelId = urlParts[urlParts.indexOf('hotels') + 1];
+            
+            // Fetch hotel details
+            fetch(`/api/hotels/${hotelId}/`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(hotel => {
+                    document.getElementById('hotel-name').textContent = hotel.name;
+                    document.getElementById('hotel-location').textContent = hotel.city;
+                    document.title = `${hotel.name} - Rooms`;
+                })
+                .catch(error => {
+                    console.error('Error fetching hotel details:', error);
+                });
+            
+            // Fetch rooms and their booking status
+            fetch(`/api/hotels/${hotelId}/rooms/`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(rooms => {
+                    displayRooms(rooms, hotelId);
+                })
+                .catch(error => {
+                    console.error('Error fetching rooms:', error);
+                    document.getElementById('rooms-container').innerHTML = 
+                        `<div class="col-12 text-center"><p>Error loading rooms. Please try again later.</p></div>`;
+                });
+        });
+        
+        // Function to display rooms with booking status
+        function displayRooms(rooms, hotelId) {
+            const container = document.getElementById('rooms-container');
+            
+            if (rooms.length === 0) {
+                container.innerHTML = `<div class="col-12 text-center"><p>No rooms available for this hotel.</p></div>`;
+                return;
+            }
+            
+            let roomsHTML = '';
+            
+            // For each room, fetch its booking status
+            const promises = rooms.map(room => {
+                return fetch(`/api/bookings/?room=${room.id}`)
+                    .then(response => response.json())
+                    .then(bookings => {
+                        // Filter active bookings (not cancelled)
+                        const activeBookings = bookings.filter(booking => !booking.is_cancelled);
+                        
+                        // Check if room is currently booked
+                        const today = new Date().toISOString().split('T')[0];
+                        const currentBookings = activeBookings.filter(booking => {
+                            return booking.check_in_date <= today && booking.check_out_date >= today;
+                        });
+                        
+                        // Get upcoming bookings
+                        const upcomingBookings = activeBookings.filter(booking => {
+                            return booking.check_in_date > today;
+                        }).sort((a, b) => new Date(a.check_in_date) - new Date(b.check_in_date));
+                        
+                        // Create room card with booking status
+                        let statusHTML = '';
+                        if (currentBookings.length > 0) {
+                            statusHTML = `
+                                <div class="booking-status status-booked">Currently Booked</div>
+                                <div class="booking-dates">Until ${currentBookings[0].check_out_date}</div>
+                            `;
+                        } else if (upcomingBookings.length > 0) {
+                            statusHTML = `
+                                <div class="booking-status status-available">Available Now</div>
+                                <div class="booking-dates">Next booking: ${upcomingBookings[0].check_in_date}</div>
+                            `;
+                        } else {
+                            statusHTML = `<div class="booking-status status-available">Available</div>`;
+                        }
+                        
+                        return `
+                        <div class="col-md-4">
+                            <div class="card room-card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Room ${room.room_number} - ${room.room_type_display}</h5>
+                                    <p class="card-text">Capacity: ${room.capacity} person(s)</p>
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <span class="text-primary fw-bold">$${room.price}/night</span>
+                                        ${statusHTML}
+                                    </div>
+                                    <div class="d-grid">
+                                        <button class="btn btn-primary book-room-btn" data-room-id="${room.id}" 
+                                            ${currentBookings.length > 0 ? 'disabled' : ''}>
+                                            ${currentBookings.length > 0 ? 'Not Available' : 'Book Now'}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`;
+                    });
+            });
+            
+            // Wait for all booking status checks to complete
+            Promise.all(promises)
+                .then(roomCards => {
+                    container.innerHTML = roomCards.join('');
+                    
+                    // Add event listeners to book buttons
+                    document.querySelectorAll('.book-room-btn').forEach(button => {
+                        button.addEventListener('click', function() {
+                            const roomId = this.getAttribute('data-room-id');
+                            alert('Booking functionality would be implemented here.');
+                            // Redirect to booking form or show modal
+                            // window.location.href = `/booking/new?room=${roomId}&hotel=${hotelId}`;
+                        });
+                    });
+                })
+                .catch(error => {
+                    console.error('Error processing rooms:', error);
+                    container.innerHTML = `<div class="col-12 text-center"><p>Error loading room details. Please try again later.</p></div>`;
+                });
+        }
+    </script>
+</body>
+</html>

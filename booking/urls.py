@@ -9,5 +9,6 @@ router.register(r'bookings', BookingViewSet)
 
 urlpatterns = [
     path('', HomePageView.as_view(), name='home'),
+    path('hotels/<uuid:hotel_id>/rooms/', HomePageView.as_view(template_name='booking/room_details.html'), name='room_details'),
     path('api/', include(router.urls)),
 ]

@@ -13,7 +13,7 @@ def generate_mock_data(num_hotels=1000000, rooms_per_hotel=3):
         rooms_per_hotel (int): Number of rooms per hotel
     """
     # List of cities for random generation
-    cities = [
+    us_cities = [
         "New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "Philadelphia",
         "San Antonio", "San Diego", "Dallas", "San Jose", "Austin", "Jacksonville",
         "Fort Worth", "Columbus", "San Francisco", "Charlotte", "Indianapolis",
@@ -31,6 +31,21 @@ def generate_mock_data(num_hotels=1000000, rooms_per_hotel=3):
         "Garland", "Hialeah", "Reno", "Chesapeake", "Gilbert", "Baton Rouge", "Irving",
         "Scottsdale", "North Las Vegas", "Fremont", "Boise City", "Richmond", "San Bernardino"
     ]
+    
+    # List of Indian cities
+    indian_cities = [
+        "Mumbai", "Delhi", "Bangalore", "Hyderabad", "Chennai", "Kolkata", 
+        "Ahmedabad", "Pune", "Jaipur", "Lucknow", "Kanpur", "Nagpur", 
+        "Indore", "Thane", "Bhopal", "Visakhapatnam", "Patna", "Vadodara", 
+        "Ghaziabad", "Ludhiana", "Agra", "Nashik", "Faridabad", "Meerut", 
+        "Rajkot", "Varanasi", "Srinagar", "Aurangabad", "Dhanbad", "Amritsar", 
+        "Navi Mumbai", "Allahabad", "Ranchi", "Howrah", "Coimbatore", "Jabalpur", 
+        "Gwalior", "Vijayawada", "Jodhpur", "Madurai", "Raipur", "Kota", 
+        "Chandigarh", "Guwahati", "Solapur", "Hubli-Dharwad", "Mysore"
+    ]
+    
+    # Combine US and Indian cities
+    cities = us_cities + indian_cities
     
     # List of hotel name prefixes and suffixes for random generation
     hotel_prefixes = [

@@ -68,17 +68,25 @@
             <h2 class="mb-4">Search Hotels</h2>
             <form id="search-form">
                 <div class="row g-3">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="city" class="form-label">City</label>
                         <input type="text" class="form-control" id="city" placeholder="Enter city name">
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label for="check-in" class="form-label">Check-in Date</label>
                         <input type="date" class="form-control" id="check-in">
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label for="check-out" class="form-label">Check-out Date</label>
                         <input type="date" class="form-control" id="check-out">
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-check mt-4">
+                            <input class="form-check-input" type="checkbox" id="unfilled-only">
+                            <label class="form-check-label" for="unfilled-only">
+                                Show only hotels with available rooms
+                            </label>
+                        </div>
                     </div>
                     <div class="col-md-2 d-flex align-items-end">
                         <button type="submit" class="btn btn-primary w-100">Search</button>
@@ -185,29 +193,53 @@
                 const city = document.getElementById('city').value;
                 const checkIn = document.getElementById('check-in').value;
                 const checkOut = document.getElementById('check-out').value;
+                const unfilledOnly = document.getElementById('unfilled-only').checked;
                 
                 // Display available cities to help users
                 if (city && !isAvailableCity(city)) {
-                    alert('Try searching for these available cities: Toledo, Boise City, Durham, Los Angeles, Plano');
+                    alert('Try searching for these available cities:\n\nUS Cities: Toledo, Boise City, Durham, Los Angeles, Plano\n\nIndian Cities: Mumbai, Delhi, Bangalore, Hyderabad, Chennai, Kolkata, Pune, Jaipur, and many more!');
                 }
                 
                 // Make API call to search hotels
-                fetchHotels(city);
+                fetchHotels(city, checkIn, checkOut, unfilledOnly);
             });
         });
         
         // Function to check if a city is available in our database
         function isAvailableCity(city) {
-            const availableCities = ['toledo', 'boise city', 'durham', 'los angeles', 'plano'];
+            const availableCities = [
+                // US Cities
+                'toledo', 'boise city', 'durham', 'los angeles', 'plano',
+                // Indian Cities/States
+                'mumbai', 'delhi', 'bangalore', 'hyderabad', 'chennai', 'kolkata', 
+                'ahmedabad', 'pune', 'jaipur', 'lucknow', 'kanpur', 'nagpur', 
+                'indore', 'thane', 'bhopal', 'visakhapatnam', 'patna', 'vadodara', 
+                'ghaziabad', 'ludhiana', 'agra', 'nashik', 'faridabad', 'meerut', 
+                'rajkot', 'varanasi', 'srinagar', 'aurangabad', 'dhanbad', 'amritsar', 
+                'navi mumbai', 'allahabad', 'ranchi', 'howrah', 'coimbatore', 'jabalpur', 
+                'gwalior', 'vijayawada', 'jodhpur', 'madurai', 'raipur', 'kota', 
+                'chandigarh', 'guwahati', 'solapur', 'hubli-dharwad', 'mysore'
+            ];
             return availableCities.some(c => city.toLowerCase().includes(c) || c.includes(city.toLowerCase()));
         }
         
         // Function to fetch hotels from API
-        function fetchHotels(city = '') {
+        function fetchHotels(city = '', checkIn = '', checkOut = '', unfilledOnly = false) {
             let apiUrl = '/api/hotels/';
+            let params = [];
             
             if (city) {
-                apiUrl += `?search=${encodeURIComponent(city)}`;
+                params.push(`search=${encodeURIComponent(city)}`);
+            }
+            
+            if (checkIn && checkOut && unfilledOnly) {
+                params.push(`check_in_date=${encodeURIComponent(checkIn)}`);
+                params.push(`check_out_date=${encodeURIComponent(checkOut)}`);
+                params.push('unfilled_only=true');
+            }
+            
+            if (params.length > 0) {
+                apiUrl += '?' + params.join('&');
             }
             
             console.log('Fetching hotels from:', apiUrl);
@@ -252,7 +284,7 @@
                             <p class="card-text">${hotel.description || 'Comfortable accommodations in a great location.'}</p>
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="text-primary fw-bold">$${hotel.price_per_night || '199'}/night</span>
-                                <a href="/api/hotels/${hotel.id}/rooms/" class="btn btn-outline-primary">View Rooms</a>
+                                <a href="/hotels/${hotel.id}/rooms/" class="btn btn-outline-primary">View Rooms</a>
                             </div>
                         </div>
                     </div>
