@@ -1,0 +1,1 @@
+# Python\n__pycache__/\n*.py[cod]\n*.class\n*.so\n.Python\nenv/\nbuild/\ndevelop-eggs/\ndist/\ndownloads/\neggs/\n.eggs/\nlib/\nlib64/\nparts/\nsdist/\nvar/\n*.egg-info/\n.installed.cfg\n*.egg\n\n# Django\n*.log\nlocal_settings.py\ndb.sqlite3\ndb.sqlite3-journal\nmedia\n\n# Virtual Environment\nvenv/\nENV/\n.env\n\n# IDE\n.idea/\n.vscode/\n*.swp\n*.swo
