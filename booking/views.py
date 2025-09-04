@@ -18,6 +18,23 @@ class HomePageView(TemplateView):
         context['popular_hotels'] = Hotel.objects.all()[:3]
         return context
 
+
+class HotelRoomsView(TemplateView):
+    template_name = 'booking/hotel_rooms.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        hotel_id = kwargs.get('hotel_id')
+        try:
+            hotel = Hotel.objects.get(id=hotel_id)
+            rooms = Room.objects.filter(hotel=hotel, is_available=True)
+            context['hotel'] = hotel
+            context['rooms'] = rooms
+        except Hotel.DoesNotExist:
+            context['hotel'] = None
+            context['rooms'] = []
+        return context
+
 class HotelViewSet(viewsets.ModelViewSet):
     queryset = Hotel.objects.all()
     serializer_class = HotelSerializer
@@ -88,15 +105,6 @@ class BookingViewSet(viewsets.ModelViewSet):
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer
     throttle_classes = [BookingUserRateThrottle, BookingAnonRateThrottle]
-    
-    def get_queryset(self):
-        queryset = Booking.objects.all()
-        room_id = self.request.query_params.get('room', None)
-        
-        if room_id:
-            queryset = queryset.filter(room_id=room_id)
-            
-        return queryset
     
     @transaction.atomic
     def create(self, request, *args, **kwargs):

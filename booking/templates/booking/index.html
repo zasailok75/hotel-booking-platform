@@ -107,7 +107,7 @@
                         <p class="card-text">Experience luxury beachfront accommodations with stunning ocean views.</p>
                         <div class="d-flex justify-content-between align-items-center">
                             <span class="text-primary fw-bold">$199/night</span>
-                            <a href="#" class="btn btn-outline-primary">View Rooms</a>
+                            <a href="#" class="btn btn-outline-primary" onclick="alert('This is a demo hotel. Please search for real hotels above.')">View Rooms</a>
                         </div>
                     </div>
                 </div>
@@ -121,7 +121,7 @@
                         <p class="card-text">Cozy mountain retreat with breathtaking views and outdoor activities.</p>
                         <div class="d-flex justify-content-between align-items-center">
                             <span class="text-primary fw-bold">$149/night</span>
-                            <a href="#" class="btn btn-outline-primary">View Rooms</a>
+                            <a href="#" class="btn btn-outline-primary" onclick="alert('This is a demo hotel. Please search for real hotels above.')">View Rooms</a>
                         </div>
                     </div>
                 </div>
@@ -135,7 +135,7 @@
                         <p class="card-text">Modern accommodations in the heart of the city with easy access to attractions.</p>
                         <div class="d-flex justify-content-between align-items-center">
                             <span class="text-primary fw-bold">$249/night</span>
-                            <a href="#" class="btn btn-outline-primary">View Rooms</a>
+                            <a href="#" class="btn btn-outline-primary" onclick="alert('This is a demo hotel. Please search for real hotels above.')">View Rooms</a>
                         </div>
                     </div>
                 </div>
@@ -284,7 +284,7 @@
                             <p class="card-text">${hotel.description || 'Comfortable accommodations in a great location.'}</p>
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="text-primary fw-bold">$${hotel.price_per_night || '199'}/night</span>
-                                <a href="/hotels/${hotel.id}/rooms/" class="btn btn-outline-primary">View Rooms</a>
+                                <a href="/hotel/${hotel.id}/rooms/" class="btn btn-outline-primary">View Rooms</a>
                             </div>
                         </div>
                     </div>

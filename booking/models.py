@@ -38,6 +38,8 @@ class Room(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     is_available = models.BooleanField(default=True)
     capacity = models.PositiveSmallIntegerField(default=1)
+    available_from = models.DateField(null=True, blank=True, help_text="Date from which room is available")
+    available_to = models.DateField(null=True, blank=True, help_text="Date until which room is available")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
